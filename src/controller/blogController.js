@@ -107,7 +107,7 @@ const deleteBlog = async (req, res) =>{
 const deletedByQueryParams = async (req, res) =>{
   try {
     const data = req.query;
-    if (Object.keys(data) == 0)    // it's a method to check the user gives input that is null or not 
+    if (Object.keys(data) == 0)    // it's a method to check the user gives input that present or not
       return res.status(400).send({ status: false, message: "No input provided" });
     const deleteByQuery = await blogModel.updateMany(data,{ isDeleted: true, deletedAt: new Date() },
       { new: true }               //It will show the updated output

@@ -29,41 +29,17 @@ const createBlog = async (req, res)=> {      //Arrow allow you to create functio
 
 // Solution-2) By using get request fetch the data 
 
-const getBlogs = async (req, res) =>{     //Arrow allow you to create function in a cleaner way,compared to regular functions.
+const getBlogs = async (req, res) => {
   try {
-    let array = [];
-    let authorId = req.query.authorId;
-    let tags = req.query.tags;
-    let conditionObj = {}
-    
-    if(authorId){
-      conditionObj["authorId"]=authorId
-    }
-    if(tags){
-      conditionObj["tags"]=tags
-    }
-  
-    let getBlog = await blogModel.find({
-      $and: [
-        conditionObj
-      ],
-      
-    });
-    if (getBlog.length > 0) {
-      for (let element of getBlog) {
-        if (element.isDeleted === false && element.isPublished === true) {
-          array.push(element);
-        }
-      }
-    } 
-    res.status(200).send({ status: true, data: array });
-
-  } 
-  catch (error) {
-    res.status(500).send({ status: false, msg: error.message });
+      const data = req.query
+      const blogs = await blogModel.find({$and : [data, { isDeleted: false }, { isPublished: true }]}).populate("authorId")
+      if (blogs.length == 0) return res.status(404).send({ status: false, msg: "No blogs Available." })
+      res.status(200).send({ status: true, count: blogs.length, data: blogs });
   }
-};
-
+  catch (error) {
+      res.status(500).send({ status: false, msg: error.message });
+  }
+}
 
 // Solution-3) By using put request to update the blog
 

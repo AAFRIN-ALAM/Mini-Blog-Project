@@ -11,11 +11,11 @@ router.post("/createAuthors", authorController.createAuthor); //creating author
 router.post("/loginUser", authorController.loginUser); //login author
 
 router.post("/createBlogs",mid1.authentication,blogController.createBlog); //creating blog
-router.get("/fetchBlogs",blogController.getBlogs); //fetch blogs
+router.get("/fetchBlogs",mid1.authentication,blogController.getBlogs); //fetch blogs
 router.put("/updateBlogs/:blogId",mid1.authentication,mid2.authorization,blogController.updateBlog); //update blog
 
 router.delete("/deleteById/:blogId",mid1.authentication,mid2.authorization, blogController.deleteBlog); //deleteById blog
-router.delete("/deletedByQueryParams", blogController.deletedByQueryParams); //queryParams blog
+router.delete("/deletedByQueryParams",mid1.authentication,blogController.deletedByQueryParams); //queryParams blog
 
 module.exports = router;
 

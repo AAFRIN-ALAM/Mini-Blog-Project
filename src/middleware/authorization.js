@@ -1,28 +1,45 @@
 const jwt = require("jsonwebtoken");
+const blogModel = require("../models/blogModel");
 
-const authorization = (req, res, next) =>{
+let authorization = async (req, res, next) => {
   try {
-    let modified = req.params.authorid;
-
     let token = req.headers["x-api-key"];
-    if (!token)
-      return res.status(404).send({ status: false, message: "Token must be present" });
+    if (!token) {
+      return res
+        .status(400)
+        .send({ status: false, msg: "token Must Be Present" });
+    }
 
-    let decodedToken = jwt.verify(token, "Secret-key"); //it's a method to verify the token is correct or not
-    if (!decodedToken)
-      return res.status(400).send({ status: false, message: "Invalid token" });
-    let loginAuthor = decodedToken.authorid;
+    let decodeToken = jwt.verify(token, "Secret-key");
+    if (!decodeToken) {
+      return res.status(401).send({ status: false, msg: "Invalid Token" });
+    }
 
-    if (modified != loginAuthor)  
-      return res.send({
-        status: false,
-        msg: "Author is not access the request",
-      });
+    let blogId = req.params.blogId;
+
+    let blog = await blogModel.findById(blogId);
+    if (!blog) {
+      return res
+        .status(404)
+        .send({ status: false, msg: "Blog Not Found , Please Check Blog Id" });
+    }
+
+    let ownerOfBlog = blog.authorId;
+
+    if (decodeToken.authorId != ownerOfBlog) {
+      return res
+        .status(403)
+        .send({
+          status: false,
+          msg: "User logged is not allowed to modify the requested users data",
+        });
+    }
 
     next();
   } catch (error) {
-    res.status(500).send({ status: false, error: error.message });
+    res.status(500).send(error.message);
   }
 };
+
 
 module.exports.authorization = authorization;

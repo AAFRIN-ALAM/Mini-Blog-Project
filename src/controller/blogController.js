@@ -34,15 +34,20 @@ const getBlogs = async (req, res) =>{     //Arrow allow you to create function i
     let array = [];
     let authorId = req.query.authorId;
     let tags = req.query.tags;
-    let category = req.query.category;
-    let subCategory = req.query.subCategory;
+    let conditionObj = {}
+    
+    if(authorId){
+      conditionObj["authorId"]=authorId
+    }
+    if(tags){
+      conditionObj["tags"]=tags
+    }
+  
     let getBlog = await blogModel.find({
-      $or: [
-        { authorId: authorId },
-        { category: category },
-        { tags: tags },
-        { subCategory: subCategory },
+      $and: [
+        conditionObj
       ],
+      
     });
     if (getBlog.length > 0) {
       for (let element of getBlog) {
@@ -50,9 +55,11 @@ const getBlogs = async (req, res) =>{     //Arrow allow you to create function i
           array.push(element);
         }
       }
-      res.status(200).send({ status: true, data: array });
     } 
-  } catch (error) {
+    res.status(200).send({ status: true, data: array });
+
+  } 
+  catch (error) {
     res.status(500).send({ status: false, msg: error.message });
   }
 };
